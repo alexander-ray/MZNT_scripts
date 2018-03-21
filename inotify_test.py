@@ -41,7 +41,8 @@ def worker(mz_dir):
 
             # key is filename, without extension & pre/post
             key = name_list[0] + '_' + 'data.' + name_list[2]
-            if (key in path_dict) and ('post' in name):
+            if ((key in path_dict) and ('post' in name)) or
+                ((key not in path_dict) and ('pre' not in name) and ('post' not in name)):
                 # Dir name is node_data.*
                 dir_name = key
                 subpath = mz_dir + dir_name
