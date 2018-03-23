@@ -18,16 +18,16 @@ def worker(mz_dir):
     wd = inotify.add_watch(mz_dir, watch_flags)
     
     path_dict = {}
+    prev_key = ''
     while True:
         '''
             Names are in the following format:
             IF.1.bin, IF.2.bin, ...
             '''
-        prev_key = ''
         # And see the corresponding events:
         for event in inotify.read():
             name = event.name
-            
+            print(name)            
             # ISDIR mask is 0x40000000
             if event.mask & 0x40000000:
                 continue
@@ -35,7 +35,7 @@ def worker(mz_dir):
             # Split name on both periods and underscores
             name_list = re.split(r'[._]+', name)
             # Simple sanity check
-            if 'IF' not in name_list[0]:
+            if 'IF' not in name_list[0] or len(name_list) < 2:
                 continue
         
             # key is filename, without extension & pre/post
@@ -44,6 +44,7 @@ def worker(mz_dir):
                 path_dict[key] = []
                 path_dict[key].append(name)
                 if prev_key != '':
+                    print("here")
                     # Dir name is node_data.*
                     dir_name = prev_key
                     subpath = mz_dir + dir_name
@@ -52,7 +53,7 @@ def worker(mz_dir):
                     # Move all files with this naming convention into new directory
                     # mv should be atomic
                     for f in path_dict[prev_key]:
-                        os.system('mv ' + mz_dir + f + ' ' + subpath)
+                        os.system('mv ' + mz_dir + f + ' ' + subpath + '/' + prev_key)
                     
                     # cp scripts into new directory
                     os.system('cp testing_pipeline.sh ' + subpath + '/test.sh')
@@ -60,7 +61,7 @@ def worker(mz_dir):
                     os.system('cp unpacker ./' + subpath + '/unpacker')
                     
                     # Code to call shell script with command line arguments
-                    subprocess.Popen('./test.sh ' + key + ' ' + sys.argv[1] + ' ' +  sys.argv[2], shell=True, cwd=subpath)
+                    subprocess.Popen('./test.sh ' + prev_key + ' ' + sys.argv[1] + ' ' +  sys.argv[2], shell=True, cwd=subpath)
                 prev_key = key
 def main():
     # Simple arg check
