@@ -1,3 +1,4 @@
+
 import os
 import sys
 import subprocess
@@ -10,26 +11,33 @@ from inotify_simple import INotify, flags
 def worker(mz_dir):
     inotify = INotify()
     #watch_flags = flags.CREATE | flags.MODIFY | flags.MOVED_TO
-    watch_flags = flags.CREATE
+    watch_flags = flags.CREATE | flags.ISDIR
+    
+    mz_dir = './'
     # Assume directory has been created if thread has spawned
-    wd = inotify.add_watch(mz_dir, watch_flags) 
+    wd = inotify.add_watch(mz_dir, watch_flags)
     
     path_dict = {}
     while True:
         '''
-        Names are in the following format:
-        IF.1.bin, IF.2.bin, ...
-        '''
+            Names are in the following format:
+            IF.1.bin, IF.2.bin, ...
+            '''
         prev_key = ''
         # And see the corresponding events:
         for event in inotify.read():
             name = event.name
+            
+            # ISDIR mask is 0x40000000
+            if event.mask & 0x40000000:
+                continue
+            
             # Split name on both periods and underscores
             name_list = re.split(r'[._]+', name)
             # Simple sanity check
             if 'IF' not in name_list[0]:
                 continue
-
+        
             # key is filename, without extension & pre/post
             key = name_list[0] + '_' + name_list[1] + '_' + name_list[2]
             if key not in path_dict:
@@ -40,7 +48,7 @@ def worker(mz_dir):
                     dir_name = prev_key
                     subpath = mz_dir + dir_name
                     os.system('mkdir ' + subpath)
-                   
+                    
                     # Move all files with this naming convention into new directory
                     # mv should be atomic
                     for f in path_dict[prev_key]:
