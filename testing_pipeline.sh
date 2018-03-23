@@ -9,10 +9,10 @@
 mkdir ./unpacked
 touch ./${1}_log
 
-echo "Combining IF files" >> ./${1}_log
-find . -type f -name "*.bin*" -print0 | sort -z | xargs -0 cat -- >> "./combined.bin"
+#echo "Combining IF files" >> ./${1}_log
+#find . -type f -name "*.bin*" -print0 | sort -z | xargs -0 cat -- >> "./combined.bin"
 
 echo "Running unpacker" >> ./${1}_log
-./unpacker "./combined.bin" "./unpacked/output.bin" 0 >> ./${1}_log 2>&1
+./unpacker "./${1}" "./unpacked/output.bin" 0 >> ./${1}_log 2>&1
 
 matlab -nodisplay -nodesktop -r "addpath(genpath('${3}')); init('$(pwd)/unpacked/output.bin.GPS_L1'); exit();" >> ./${1}_log 2>&1

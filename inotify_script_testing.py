@@ -48,7 +48,7 @@ def worker(mz_dir):
                     
                     # cp scripts into new directory
                     os.system('cp testing_pipeline.sh ' + subpath + '/test.sh')
-                    os.system('cp concatfiles.sh ./' +  subpath + '/concatfiles.sh')
+                    #os.system('cp concatfiles.sh ./' +  subpath + '/concatfiles.sh')
                     os.system('cp unpacker ./' + subpath + '/unpacker')
                     
                     # Code to call shell script with command line arguments
