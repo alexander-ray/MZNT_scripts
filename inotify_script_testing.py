@@ -53,7 +53,7 @@ def worker(mz_dir):
                     
                     # Code to call shell script with command line arguments
                     subprocess.Popen('./test.sh ' + key + ' ' + sys.argv[1] + ' ' +  sys.argv[2], shell=True, cwd=subpath)
-
+                prev_key = key
 def main():
     # Simple arg check
     if len(sys.argv) <= 2:
